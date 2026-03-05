@@ -19,34 +19,44 @@ export function detectBullishDivergence(
   timeframe: string,
   minDist: number,
   maxDist: number,
+  maxLookback: number = 5,
+  oversoldLevel: number = 20,
 ): DivergenceSignal | null {
   if (pivotLows.length < 2) return null;
 
-  const prev = pivotLows[pivotLows.length - 2];
   const curr = pivotLows[pivotLows.length - 1];
-  const distance = curr.index - prev.index;
+  const startIndex = pivotLows.length - 2;
+  const endIndex = Math.max(0, pivotLows.length - 1 - maxLookback);
 
-  // Validate distance
-  if (distance < minDist || distance > maxDist) return null;
+  for (let i = startIndex; i >= endIndex; i--) {
+    const prev = pivotLows[i];
+    const distance = curr.index - prev.index;
 
-  // Price: Lower Low
-  if (curr.price >= prev.price) return null;
+    // Validate distance
+    if (distance < minDist) continue;
+    if (distance > maxDist) break; // Optimization: pivots are sorted by index, so distance only grows
 
-  // RSI: Higher Low (diverging from price)
-  if (curr.rsi <= prev.rsi) return null;
+    // Price: Lower Low or Double Bottom
+    if (curr.price > prev.price) continue;
 
-  // Strict filter: was the first RSI in oversold territory?
-  const strict = prev.rsi < 30;
+    // RSI: Higher Low (diverging from price)
+    if (curr.rsi <= prev.rsi) continue;
 
-  return {
-    type: "bullish",
-    symbol,
-    timeframe,
-    currentPivot: curr,
-    previousPivot: prev,
-    confirmed: true,
-    strict,
-  };
+    // Strict filter: was the first RSI in oversold territory?
+    const strict = prev.rsi < oversoldLevel;
+
+    return {
+      type: "bullish",
+      symbol,
+      timeframe,
+      currentPivot: curr,
+      previousPivot: prev,
+      confirmed: true,
+      strict,
+    };
+  }
+
+  return null;
 }
 
 /**
@@ -64,32 +74,45 @@ export function detectBearishDivergence(
   timeframe: string,
   minDist: number,
   maxDist: number,
+  maxLookback: number = 5,
+  overboughtLevel: number = 80,
 ): DivergenceSignal | null {
   if (pivotHighs.length < 2) return null;
 
-  const prev = pivotHighs[pivotHighs.length - 2];
   const curr = pivotHighs[pivotHighs.length - 1];
-  const distance = curr.index - prev.index;
+  const startIndex = pivotHighs.length - 2;
+  const endIndex = Math.max(0, pivotHighs.length - 1 - maxLookback);
 
-  // Validate distance
-  if (distance < minDist || distance > maxDist) return null;
+  for (let i = startIndex; i >= endIndex; i--) {
+    const prev = pivotHighs[i];
+    const distance = curr.index - prev.index;
 
-  // Price: Higher High
-  if (curr.price <= prev.price) return null;
+    // Validate distance
+    if (distance < minDist) continue;
+    if (distance > maxDist) break; // Optimization: pivots are sorted by index, so distance only grows
 
-  // RSI: Lower High (diverging from price)
-  if (curr.rsi >= prev.rsi) return null;
+    // Price: Higher High or Double Top
+    if (curr.price < prev.price) continue;
 
-  // Strict filter: was the first RSI in overbought territory?
-  const strict = prev.rsi > 70;
+    // RSI: Lower High (diverging from price)
+    if (curr.rsi >= prev.rsi) continue;
 
-  return {
-    type: "bearish",
-    symbol,
-    timeframe,
-    currentPivot: curr,
-    previousPivot: prev,
-    confirmed: true,
-    strict,
-  };
+    // Strict filter: was the first RSI in overbought territory?
+    const strict = prev.rsi > overboughtLevel;
+    console.log(
+      `Pref rsi: ${prev.rsi} - overbought level: ${overboughtLevel} - strict: ${strict}`,
+    );
+
+    return {
+      type: "bearish",
+      symbol,
+      timeframe,
+      currentPivot: curr,
+      previousPivot: prev,
+      confirmed: true,
+      strict,
+    };
+  }
+
+  return null;
 }
