@@ -1,0 +1,18 @@
+{
+	"scripts": {
+		"start": "ts-node src/main.ts",
+		"build": "tsc",
+		"start:prod": "node dist/src/main.js"
+	},
+	"dependencies": {
+		"ccxt": "^4.5.40",
+		"dotenv": "^17.3.1",
+		"technicalindicators": "^3.1.0",
+		"telegraf": "^4.16.3"
+	},
+	"devDependencies": {
+		"@types/node": "^25.3.3",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.9.3"
+	}
+}

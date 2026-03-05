@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "crypto-trading-bots": {
+      "source": "omer-metin/skills-for-antigravity",
+      "sourceType": "github",
+      "computedHash": "aaae2a40719b4006ff88420ca0c48ebac3c09c27fa13bd0a96594dc2d7c656bc"
+    },
+    "telegram-bot-builder": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "694c116eb5cbf333afb35cec50e34a53c4e51f3dc1258300ec2b4fdcdd827ed2"
+    }
+  }
+}
